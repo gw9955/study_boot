@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http//www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<template layout:fragment="vueTemplate" id="vueTemplate">
+
+	<div class="pagetitle">
+		<h1>사용자 관리</h1>
+		<nav>
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="${CPATH}">Home</a></li>
+				<li class="breadcrumb-item active">사용자</li>
+			</ol>
+		</nav>
+	</div>
+	<!-- End Page Title -->
+
+	<section class="section">
+		<div class="row">
+			<div class="col">
+
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">사용자 검색</h5>
+						<div class="row mb-3">
+							<label for="userId" class="col-sm-4 col-md-2 col-form-label">ID</label>
+							<div class="col-sm-8 col-md-4">
+								<input id="userId" type="text" name="userId" class="form-control"
+									v-model.trim="searchVO.userId" @keypress.enter="search">
+							</div>
+							<label for="userNm" class="col-sm-4 col-md-2 col-form-label">이름</label>
+							<div class="col-sm-8 col-md-4">
+								<input id="userNm" type="text" name="userNm" class="form-control"
+									v-model.trim="searchVO.userNm" @keypress.enter="search">
+							</div>
+						</div>
+						<div class="row float-end mt-2">
+							<button id="searchBtn" class="btn btn-primary" @click="search" type="button">검색</button>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">사용자 목록</h5>
+
+						<!-- Table with hoverable rows -->
+						<table class="table table-hover">
+							<caption class="d-none">사용자 목록(번호, ID, 이름, 등록자, 등록일자)</caption>
+							<thead>
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">ID</th>
+									<th scope="col">이름</th>
+									<th scope="col">등록자</th>
+									<th scope="col">등록일자</th>
+								</tr>
+							</thead>
+							<tbody v-if="list != null && list.length > 0">
+								<tr v-for="(vo, idx) in list" :key="vo.userId">
+									<td scope="row">{{ idx + 1 }}</td>
+									<td><a :href="getUrl(vo)">{{ vo.userId }}</a></td>
+									<td>{{ vo.userNm }}</td>
+									<td>{{ vo.rgstNm }}</td>
+									<td>{{ vo.rgstDt }}</td>
+								</tr>
+							</tbody>
+							<tbody v-else>
+								<tr>
+									<td scope="row" colspan="5" class="text-center">데이터가 없습니다.</td>
+								</tr>
+							</tbody>
+						</table>
+						<!-- End Table with hoverable rows -->
+						<button class="btn btn-primary" type="button" @click="goToInsertPage">신규 유저 등록</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+</template>
+
+<script type="text/javascript" layout:fragment="vueScript">
+
+	Vue.createApp({
+	    template: '#vueTemplate',
+	    data() {
+	      return {
+				searchVO: {
+					userId: '[[${param.userId}]]',
+					userNm: '[[${param.userNm}]]'
+				},
+				list: [],
+	        }
+	    },
+	    mounted() {
+	    	this.search();
+	    },
+	    methods: {
+	    	search() {
+	    		var vm = this;
+				$.ajax({
+					url: G_CONST.CPATH + '/api/v1/cmmn/users',
+					method: 'GET',
+					data: this.searchVO,
+					dataType: 'JSON',
+					success: function(data) {
+						vm.list = data;
+					},
+					error: function() {
+						alert('오류가 발생하였습니다.\n잠시 후 다시 검색해 주세요.');
+						console.err(arguments);
+					}
+				});
+	    	},
+	    	getUrl(vo) {
+	    		return G_CONST.CPATH + '/cmmn/users/' + vo.userId
+	    	},
+	    	goToInsertPage() {
+	    		window.location.href = G_CONST.CPATH + '/cmmn/users/insert';
+	    	}
+	    }
+	}).mount('#app')
+
+</script>
+
+
+<style layout:fragment="vueStyle">
+</style>

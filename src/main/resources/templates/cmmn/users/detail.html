@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<template layout:fragment="vueTemplate" id="vueTemplate">
+
+	<div class="pagetitle">
+		<h1>사용자 관리</h1>
+		<nav>
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="${CPATH}">Home</a></li>
+				<li class="breadcrumb-item active">사용자</li>
+			</ol>
+		</nav>
+	</div>
+	<!-- End Page Title -->
+
+	<div class="row">
+		<div class="col">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">사용자 상세</h5>
+					<table class="table table-hover">
+						<caption class="d-none">사용자 상세(번호, 이름)</caption>
+						<tbody>
+							<tr>
+							    <th>사용자 아이디</th>
+							    <td><span>{{ userDetail.userId }}</span></td>
+							</tr>
+							<tr>
+							    <th>사용자 이름</th>
+							    <td><span>{{ userDetail.userNm }}</span></td>
+							</tr>
+							<tr>
+							    <th>등록자</th>
+							    <td><span>{{ userDetail.rgstId }}</span></td>
+							</tr>
+							<tr>
+							    <th>등록일시</th>
+							    <td><span>{{ userDetail.rgstDt }}</span></td>
+							</tr>
+							<tr>
+							    <th>수정자</th>
+							    <td><span>{{ userDetail.updtId }}</span></td>
+							</tr>
+							<tr>
+							    <th>수정일시</th>
+							    <td><span>{{ userDetail.updtDt }}</span></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<form @submit.prevent="deleteUser">
+		<input type="hidden" name="userId" :value="userDetail.userId" />
+		<button class="btn btn-danger" type="button" @click="deleteUser" style="margin-right: 5px;">삭제</button>
+		<button class="btn btn-primary" type="button" @click="goToUpdatePage" style="margin-right: 5px;">수정</button>
+		<button class="btn btn-warning" type="button" @click="goToListPage">목록</button>
+	</form>
+
+</template>
+
+<script type="text/javascript" layout:fragment="vueScript">
+
+	Vue.createApp({
+		    template: '#vueTemplate',
+		    data() {
+		      return {
+					userDetail: {
+						userId: '[[${userId}]]'
+					},
+		        }
+		    },
+		    mounted() {
+		    	this.getUserDetail();
+		    },
+		    methods: {
+		    	getUserDetail() {
+		    		var vm = this;
+					$.ajax({
+						url: G_CONST.CPATH + '/api/v1/cmmn/users/' + vm.userDetail.userId,
+						method: 'GET',
+						dataType: 'JSON',
+						success: function(data) {
+							vm.userDetail = data;
+						},
+						error: function() {
+							alert('오류가 발생하였습니다.\n잠시 후 다시 검색해 주세요.');
+							console.error(arguments);
+						}
+					});
+		    	},
+		    	getUrl(vo) {
+		    		return G_CONST.CPATH + '/cmmn/users/' + vo.userId + '/modify'
+		    	},
+		    	goToUpdatePage() {
+		        	window.location.href = this.getUrl(this.userDetail);
+		        },
+		        goToListPage() {
+		        	window.location.href = '/cmmn/users';
+		        },
+		        deleteUser() {
+		        	var vm = this;
+		        	if (confirm('정말로 사용자 정보를 삭제하시겠습니까?')) {
+						$.ajax({
+							url: G_CONST.CPATH + '/api/v1/cmmn/users/' + vm.userDetail.userId,
+							method: 'DELETE',
+							dataType: 'JSON',
+							success: function(data) {
+								alert('사용자 정보가 성공적으로 삭제되었습니다.');
+								window.location.href = G_CONST.CPATH + '/cmmn/users';
+							},
+							error: function() {
+								alert('오류가 발생하였습니다.\n잠시 후 다시 검색해 주세요.');
+								console.error(arguments);
+							}
+						});
+		        	}
+		        }
+		    }
+		}).mount('#app')
+
+</script>
+
+
+<style layout:fragment="vueStyle">
+</style>

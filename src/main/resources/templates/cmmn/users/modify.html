@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<template layout:fragment="vueTemplate" id="vueTemplate">
+
+	<div class="pagetitle">
+		<h1>사용자 관리</h1>
+		<nav>
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="${CPATH}">Home</a></li>
+				<li class="breadcrumb-item active">사용자</li>
+			</ol>
+		</nav>
+	</div>
+	<!-- End Page Title -->
+
+	<div class="row">
+		<div class="col">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">사용자 수정</h5>
+					<table class="table table-hover">
+						<caption class="d-none">사용자 수정(이름, 비밀번호)</caption>
+						<tbody>
+							<tr>
+							    <th>사용자 아이디</th>
+							    <td><input type="text" class="form-control" v-model.trim="userDetail.userId" readonly /></td>
+							</tr>
+							<tr>
+							    <th>사용자 비밀번호</th>
+							    <td><input type="password" class="form-control" v-model.trim="userDetail.userPw" /></td>
+							</tr>
+							<tr>
+							    <th>사용자 이름</th>
+							    <td><input type="text" class="form-control" v-model.trim="userDetail.userNm" /></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<button class="btn btn-primary" type="button" @click="updateBtn">등록</button>
+</template>
+
+<script type="text/javascript" layout:fragment="vueScript">
+
+	Vue.createApp({
+		    template: '#vueTemplate',
+		    data() {
+		      return {
+					userDetail: {
+						userId: '[[${userId}]]'
+					},
+		        }
+		    },
+		    mounted() {
+		    	this.getUserDetail();
+		    },
+		    methods: {
+		    	getUserDetail() {
+		    		var vm = this;
+					$.ajax({
+						url: G_CONST.CPATH + '/api/v1/cmmn/users/' + vm.userDetail.userId,
+						method: 'GET',
+						dataType: 'JSON',
+						success: function(data) {
+							vm.userDetail = data;
+						},
+						error: function() {
+							alert('오류가 발생하였습니다.\n잠시 후 다시 검색해 주세요.');
+							console.error(arguments);
+						}
+					});
+		    	},
+		    	updateBtn() {
+		    		var vm = this;
+					$.ajax({
+						url: G_CONST.CPATH + '/api/v1/cmmn/users/' + vm.userDetail.userId,
+						method: 'PUT',
+						dataType: 'JSON',
+						contentType: 'application/json',
+						data: JSON.stringify(vm.userDetail),
+						success: function(data) {
+							alert('사용자 정보가 성공적으로 수정되었습니다.');
+							window.location.href = G_CONST.CPATH + '/cmmn/users/' + vm.userDetail.userId;
+						},
+						error: function() {
+							alert('오류가 발생하였습니다.\n잠시 후 다시 검색해 주세요.');
+							console.error(arguments);
+						}
+					});
+		    	},
+		    }
+		}).mount('#app')
+
+</script>
+
+
+<style layout:fragment="vueStyle">
+</style>
