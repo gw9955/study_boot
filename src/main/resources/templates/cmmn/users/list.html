@@ -54,7 +54,7 @@
 						<table class="table table-hover">
 							<caption class="d-none">사용자 목록(번호, ID, 이름, 등록자, 등록일자)</caption>
 							<thead>
-								<tr>
+								<tr class="text-center">
 									<th scope="col">#</th>
 									<th scope="col">ID</th>
 									<th scope="col">이름</th>
@@ -63,7 +63,7 @@
 								</tr>
 							</thead>
 							<tbody v-if="list != null && list.length > 0">
-								<tr v-for="(vo, idx) in list" :key="vo.userId">
+								<tr class="text-center" v-for="(vo, idx) in list" :key="vo.userId">
 									<td scope="row">{{ idx + 1 }}</td>
 									<td><a :href="getUrl(vo)">{{ vo.userId }}</a></td>
 									<td>{{ vo.userNm }}</td>
